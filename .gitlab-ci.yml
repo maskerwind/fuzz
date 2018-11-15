@@ -1,0 +1,21 @@
+image: gcc
+
+build:
+  stage: build
+  tags:
+    - docker
+  script:
+    - make
+  artifacts:
+    paths:
+      - sint
+
+# run tests using the binary built before
+test:
+  stage: test
+  tags:
+    - docker
+  before_script:
+    - apt-get update; apt-get -y install expect
+  script:
+    - ./runtest
