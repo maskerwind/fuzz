@@ -31,13 +31,18 @@ void data_delete(data* d) {
 
 node* node_new(data* d) {
     // Implement this
-    (void)d;
-    return NULL;
+    if (d == NULL){
+        return NULL;
+    }
+    node* n = (node*)malloc(sizeof(node));
+    n->data = d;
+    n->left = n->right = NULL;
+    return n;
 }
 
 void node_delete(node* n) {
     // Implement this
-    (void)n;
+    if (n != NULL) free(n);
 }
 
 sortedcontainer* sortedcontainer_new() {
@@ -49,21 +54,142 @@ sortedcontainer* sortedcontainer_new() {
 void sortedcontainer_insert(sortedcontainer* sc, data* data) {
     node* n = node_new(data);
     // Implement this
-    (void)sc;
-    (void)n;
+    if (n == NULL) return;
+    if (sc == NULL){ 
+		sc = sortedcontainer_new();
+		sc->root = n;
+		return;
+	}
+	if (sc->root ==NULL){
+		sc->root = n;
+		return;
+	}
+
+	node* head = sc->root;
+	node* parent;
+	while(head){
+		parent = head;
+		if (data_compare(head->data, data) == 1){
+			head = head->left;
+		}
+		else if (data_compare(head->data, data) == -1){
+			head = head->right;
+		}
+		else return;
+	}
+	
+	if (data_compare(parent->data, data) == 1){
+		parent->left = node_new(data);
+	}
+	else if (data_compare(parent->data, data) == -1){
+		parent->right = node_new(data);
+	}
+	else return;
 }
 
 int sortedcontainer_erase(sortedcontainer* sc, data* data) {
     // Implement this
-    (void)sc;
-    (void)data;
-    return 0;
+    if (sc == NULL || data == NULL){
+        return 0;
+    }
+    if (sc->root ==NULL){
+        return 0;
+    }
+
+	node* head = sc->root;
+	node* parent;
+	node* parent_replacement;
+	node* replacement;
+	node* child_ptr;
+
+	int is_left = 0;
+	parent = NULL;
+	while(head){ // Find the data to be erased.
+		if (data_compare(head->data,data)==0){
+			break;
+		}
+		else if (data_compare(head->data,data)==1){
+			parent = head;
+			is_left = 1;
+			head = head->left;
+		}
+		else{
+            parent = head;
+            is_left = 0;
+            head = head->right;
+		}
+	}
+
+	if (head == NULL)  return 0;
+
+	if ((head->left == NULL) && (head->right == NULL)){
+		if (parent == NULL){
+			assert(head == sc->root);
+			free(head);
+			sc->root = NULL;
+		}
+		else{
+			free(head);
+			if (is_left) parent->left = NULL;
+			else parent->right = NULL;
+		}
+	}
+	else if ((head->left == NULL) || (head->right == NULL)){
+		if (head->left != NULL) child_ptr = head->left;
+        else child_ptr = head->right;
+        if (head == NULL){
+        	assert(head == sc->root);
+            sc->root = child_ptr;
+            free(head);
+		}
+        else{
+           if (is_left)  parent->left = child_ptr;
+           else  parent->right =  child_ptr;
+           free(head);
+        }
+    }
+	else{
+		parent_replacement = head;
+        replacement = head->left;
+		is_left = 1;
+		while(replacement->right != NULL){
+			parent_replacement = replacement;
+			replacement = replacement->right;
+			is_left = 0;
+		}
+		head->data = replacement->data;
+		if(is_left){
+			assert(replacement->right == NULL);
+			head->left = replacement->left;
+			free(replacement);
+		}
+		else{
+			parent_replacement->right = replacement->left;
+			free(replacement);
+		}
+	}
+	return 1;
 }
 
 int sortedcontainer_contains(sortedcontainer* sc, data* data) {
     // Implement this
-    (void)sc;
-    (void)data;
+    if (sc == NULL || data == NULL){
+        return 0;
+    }
+    if (sc->root ==NULL){
+        return 0;
+    }
+
+	node* head = sc->root;
+	while(head){
+		if ( data_compare(head->data,data) == 0){
+			return 1;
+		}
+		else if (data_compare(head->data,data) == 1){
+			head = head->left;
+		}
+		else head = head->right;
+	}
     return 0;
 }
 

@@ -24,10 +24,20 @@ void print_prompt(FILE* f) {
  * TO FIX:
  *   There are two serious problems in this function that are related
  */
-data* read_data(char const* command) {
-    int age;
+data* read_data(char const* command) {	
+/* FIXED:
+1. Variables may not be assigned correctly. 
+   So 'ret' receives the number of variables successfully assigned
+2. The length of name should be smaller than NAME_LENGTH-1
+3. length of age is restricted to 5 size.
+*/
+    int age, ret;
     char name[NAME_LENGTH];
-    sscanf(command, "%*s %i %s", &age, name);
+    ret = sscanf(command, "%*s %5i %[a-zA-Z]", &age, name);
+	if (ret != 2 || (strlen(name)>NAME_LENGTH-1)){
+		printf("Invalid input\n");
+		return NULL;
+	}
     return data_new(age, name);
 }
 
@@ -42,6 +52,9 @@ data* read_data(char const* command) {
  *   There are three problems in this function, two of which are related
  */
 int handle_command(FILE* printFile, sortedcontainer* sc, char* command) {
+/* FIXED:
+1. Add fflush() after fprintf()
+*/
     switch(*command) {
     case 'i':
         sortedcontainer_insert(sc, read_data(command));
@@ -52,8 +65,10 @@ int handle_command(FILE* printFile, sortedcontainer* sc, char* command) {
     case 'c':
         if(sortedcontainer_contains(sc, read_data(command))) {
             fprintf(printFile, "y\n");
+			fflush(printFile);
         } else {
             fprintf(printFile, "n\n");
+			fflush(printFile);
         }
         break;
     case 'p':
@@ -67,7 +82,8 @@ int handle_command(FILE* printFile, sortedcontainer* sc, char* command) {
         break;
     default: {
         fprintf(printFile, "No such command: ");
-        fprintf(printFile, command);
+        fprintf(printFile,"%s", command);
+		fflush(printFile);
         fprintf(printFile, "\n");
         break;
     }
@@ -85,7 +101,12 @@ int handle_command(FILE* printFile, sortedcontainer* sc, char* command) {
  *   by only changing TWO lines in total.
  */
 char* read_command(FILE* in) {
+/* FIXED: 
+1. realloc() returns different address if new block size is larger than the former.
+2. The variable input should be null-terminated string.
+*/
     int inputMaxLength = 0;
+	int counter = 0;
     char* input = NULL;
     char* inputAt = NULL;
 
@@ -95,17 +116,20 @@ char* read_command(FILE* in) {
     input = (char*)malloc(sizeof(char) * incr);
     inputAt = input;
     do {
-        inputAt[incr - 1] = 'e';
+        inputAt[incr - 1] = 'e'; 
         if(fgets(inputAt, incr, in) == NULL) return NULL;
-        if(inputAt[incr - 1] != '\0' || inputAt[incr - 2] == '\n') {
+        if(inputAt[incr - 1] != '\0' || inputAt[incr - 2] == '\n') { 
             break;
         }
         inputMaxLength += INPUT_INCREMENT;
+//		printf("former: %p\n",input);
         input = realloc(input, sizeof(char) * inputMaxLength);
-        inputAt += incr - 1;
+//		printf("later: %p\n",input);
+		inputAt = input + (INPUT_INCREMENT - 1) + counter*(incr - 1);
+		counter += 1;
         incr = INPUT_INCREMENT + 1;
     } while(1);
-    input[strlen(input)-1] = 0;
+    input[strlen(input)-1] = '\0'; //input[strlen(input)-1] = 0;
     return input;
 }
 
@@ -121,7 +145,7 @@ char* read_command(FILE* in) {
 int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
-
+// FIXED: command needs to be freed 
     sortedcontainer* sc = sortedcontainer_new();
 
     while(1) {
@@ -133,13 +157,15 @@ int main(int argc, char* argv[]) {
         }
 
         if(handle_command(stdout, sc, command)) {
+			free(command);
             break;
         }
+		free(command);
     }
 
     sortedcontainer_delete(sc);
 
-    fprintf(stdout, "\nBye.\n");
+    fprintf(stdout, "\nBye.\n"); // use a format string when a format string is due
 
     return 0;
 }
