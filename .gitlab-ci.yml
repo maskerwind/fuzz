@@ -16,6 +16,6 @@ test:
   tags:
     - docker
   before_script:
-    - apt-get update; apt-get -y install expect
+    - apt-get update; sudo apt-get -y install expect
   script:
     - ./runtest
