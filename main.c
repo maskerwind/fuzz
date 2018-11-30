@@ -34,7 +34,7 @@ data* read_data(char const* command) {
     int age, ret;
     char name[NAME_LENGTH];
     ret = sscanf(command, "%*s %5i %[a-zA-Z]", &age, name);
-	if (ret != 2 || (strlen(name)>NAME_LENGTH-1)){
+	if (ret != 2 || (strlen(name)>NAME_LENGTH-1) || age<0){
 		printf("Invalid input\n");
 		return NULL;
 	}
