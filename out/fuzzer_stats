@@ -1,0 +1,25 @@
+start_time     : 1545835116
+last_update    : 1545839670
+fuzzer_pid     : 28112
+cycles_done    : 0
+execs_done     : 3182073
+execs_per_sec  : 678.55
+paths_total    : 301
+paths_favored  : 53
+paths_found    : 300
+paths_imported : 0
+max_depth      : 5
+cur_path       : 260
+pending_favs   : 5
+pending_total  : 242
+variable_paths : 0
+bitmap_cvg     : 0.52%
+unique_crashes : 46
+unique_hangs   : 11
+last_path      : 1545839663
+last_crash     : 1545839659
+last_hang      : 1545839634
+exec_timeout   : 20
+afl_banner     : sint
+afl_version    : 1.96b
+command_line   : afl-fuzz -i in -o out ./sint

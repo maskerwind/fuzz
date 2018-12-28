@@ -33,8 +33,10 @@ data* read_data(char const* command) {
 */
     int age, ret;
     char name[NAME_LENGTH];
-    ret = sscanf(command, "%*s %5i %[a-zA-Z]", &age, name);
+    
+    ret = sscanf(command, "%*s %5i %20[a-zA-Z]", &age, name);
 	if (ret != 2 || (strlen(name)>NAME_LENGTH-1) || age<0){
+                name[NAME_LENGTH-1]='\0';
 		printf("Invalid input\n");
 		return NULL;
 	}
@@ -106,7 +108,7 @@ char* read_command(FILE* in) {
 2. The variable input should be null-terminated string.
 */
     int inputMaxLength = 0;
-	int counter = 0;
+    int counter = 0;
     char* input = NULL;
     char* inputAt = NULL;
 
@@ -157,12 +159,11 @@ int main(int argc, char* argv[]) {
         }
 
         if(handle_command(stdout, sc, command)) {
-			free(command);
+	    free(command);
             break;
         }
-		free(command);
+	free(command);
     }
-
     sortedcontainer_delete(sc);
 
     fprintf(stdout, "\nBye.\n"); // use a format string when a format string is due

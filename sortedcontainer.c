@@ -135,12 +135,12 @@ int sortedcontainer_erase(sortedcontainer* sc, data* data) {
 		}
 	}
 	else if ((head->left == NULL) || (head->right == NULL)){
-		if (head->left != NULL) child_ptr = head->left;
-        else child_ptr = head->right;
-        if (head == NULL){
+		if (head->left != NULL) {child_ptr = head->left;}
+                else {child_ptr = head->right;}
+            if (parent == NULL){
         	assert(head == sc->root);
-            sc->root = child_ptr;
-            free(head);
+                sc->root = child_ptr;
+                free(head);
 		}
         else{
            if (is_left)  parent->left = child_ptr;
@@ -150,7 +150,7 @@ int sortedcontainer_erase(sortedcontainer* sc, data* data) {
     }
 	else{
 		parent_replacement = head;
-        replacement = head->left;
+                replacement = head->left;
 		is_left = 1;
 		while(replacement->right != NULL){
 			parent_replacement = replacement;
